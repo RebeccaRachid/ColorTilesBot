@@ -1,5 +1,6 @@
 import pyautogui as ag
 import time
+from collections import Counter
 
 # constants
 tilesX = 23
@@ -47,52 +48,54 @@ def set_colors(colors_list):
     print("Set Colors Array in (" + str(time_spent) + ") secs.")
 
 
-# def check_neighbors(color_array, current_space):
-#     x, y = current_space
-#     neighbors = []
-#
-#     # Define the directions for the neighbors
-#     directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-#
-#     for dx, dy in directions:
-#         new_x, new_y = x + dx, y + dy
-#         if 0 <= new_x < len(color_array) and 0 <= new_y < len(color_array[0]) and color_array[new_x][new_y] != "Empty":
-#             neighbors.append(color_array[new_x][new_y])
-#
-#     # Count the occurrences of each color
-#     color_count = {}
-#     for color in neighbors:
-#         color_count[color] = color_count.get(color, 0) + 1
-#
-#     if any(count > 2 for count in color_count.values()):
-#         print(neighbors)
-#
-#     # Return True if more than 2 neighbors have the same color
-#     return any(count > 2 for count in color_count.values())
-
-
-def check_neighbors(grid, indices):
-    x, y = indices
-    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-
-    matching_count = 0
-    empty_count = 0
-    target_color = None
-
-    for dx, dy in directions:
-        new_x, new_y = x + dx, y + dy
-        while 0 <= new_x < len(grid) and 0 <= new_y < len(grid[0]):
-            if grid[new_x][new_y] == "Empty":
-                empty_count += 1
-                new_x, new_y = new_x + dx, new_y + dy
+def check_neighbors(color_array, current_space):
+    x, y = current_space
+    north = "Edge"
+    if y != 0:
+        distance = 1  # distance from current space
+        while distance <= y:
+            if color_array[y-distance][x] == "Empty":
+                distance += 1
+                continue
             else:
-                if target_color is None:
-                    target_color = grid[new_x][new_y]
-                elif grid[new_x][new_y] == target_color:
-                    matching_count += 1
+                north = color_array[y-distance][x]
                 break
-
-    return matching_count + empty_count > 2
+    east = "Edge"
+    if x != tilesX-1:
+        distance = 1
+        while distance < (tilesX-x):
+            if color_array[y][x+distance] == "Empty":
+                distance += 1
+                continue
+            else:
+                east = color_array[y][x+distance]
+                break
+    south = "Edge"
+    if y != tilesY-1:
+        distance = 1
+        while distance < (tilesY-y):
+            if color_array[y+distance][x] == "Empty":
+                distance += 1
+                continue
+            else:
+                south = color_array[y+distance][x]
+                break
+    west = "Edge"
+    if x != 0:
+        distance = 1
+        while distance <= x:
+            if color_array[y][x-distance] == "Empty":
+                distance += 1
+                continue
+            else:
+                west = color_array[y][x-distance]
+                break
+    neighbors = [north, south, east, west]
+    color_counts = Counter(item for item in neighbors if item != "Edge")
+    for count in color_counts.values():
+        if count == 2 or count == 4:
+            return True
+    return False
 
 
 if __name__ == '__main__':
@@ -133,6 +136,8 @@ if __name__ == '__main__':
     # main play loop
     while True:
         set_colors(colors)
+        # uncomment to debug color array setting.
+        print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in colors]))
         for i in range(tilesY):
             for j in range(tilesX):
                 if colors[i][j] == "Empty":
@@ -142,7 +147,6 @@ if __name__ == '__main__':
                         time.sleep(0.5)
                         set_colors(colors)
 
-    # uncomment to debug color array setting.
-    # print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in colors]))
+
 
 
