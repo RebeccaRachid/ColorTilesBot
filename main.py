@@ -144,7 +144,7 @@ if __name__ == '__main__':
                     if check_neighbors(colors, (j, i)):
                         ag.moveTo(tiles[i][j])
                         ag.click()
-                        time.sleep(0.5)
+                        time.sleep(0.6)
                         set_colors(colors)
 
 
